@@ -1,0 +1,150 @@
+---
+title: "2002-2016_table_updates"
+author: "Gavin Lemley"
+date: "April 5, 2019"
+output: html_document
+---
+
+Load in data and libraries
+```{r setup, include=FALSE}
+library(tidyverse)
+root.dir <- rprojroot::find_root("Chem_database_mgmt.Rproj")
+
+simpleRIBS <- read.csv(file.path(root.dir, "data/source", "simpleRIBS.csv"), stringsAsFactors = FALSE)
+# historicRIBS <- read.csv("C:/Data/RIBS/From_L_drive/RIBS.csv", stringsAsFactors = FALSE)
+
+```
+
+Analyze for completeness issus
+```{r}
+
+# Look at number of samples by year and parameter
+simpleRIBS$SAMPLE_DATE <- as.Date(simpleRIBS$SAMPLE_DATE, "%Y-%m-%d")
+simpleRIBS$year <- lubridate::year(simpleRIBS$SAMPLE_DATE)
+
+count.yr.param <- simpleRIBS %>%
+        group_by(year, Parameter) %>%
+        tally()
+count.yr <- simpleRIBS %>%
+        group_by(year) %>%
+        tally()
+
+sites.2007 <- simpleRIBS %>% 
+  filter(year == 2007)
+sites.2007 <- unique(sites.2007$Station.Name)
+
+sites.2008 <- simpleRIBS %>% 
+  filter(year == 2008)
+sites.2008 <- unique(sites.2008$Station)
+
+sites.2009 <- simpleRIBS %>% 
+  filter(year == 2009) 
+sites.2009 <- unique(sites.2009$Station)
+
+sites.2010 <- simpleRIBS %>% 
+  filter(year == 2010) 
+sites.2010 <- unique(sites.2010$Station)
+
+sites.2011 <- simpleRIBS %>% 
+  filter(year == 2011) 
+sites.2011 <- unique(sites.2011$Station)
+
+sites.2012 <- simpleRIBS %>% 
+  filter(year == 2012) 
+sites.2012 <- unique(sites.2012$Station)
+
+sites.2013 <- simpleRIBS %>% 
+  filter(year == 2013) 
+sites.2013 <- unique(sites.2013$Station)
+
+sites.2014 <- simpleRIBS %>% 
+  filter(year == 2014) 
+sites.2014 <- unique(sites.2014$Station)
+
+sites.2015 <- simpleRIBS %>% 
+  filter(year == 2015) 
+sites.2015 <- unique(sites.2015$Station)
+
+sites.2016 <- simpleRIBS %>% 
+  filter(year == 2016) 
+sites.2016 <- unique(sites.2016$Station)
+
+length(sites.2007)
+length(sites.2008)
+length(sites.2009)
+length(sites.2010)
+length(sites.2011)
+length(sites.2012)
+length(sites.2013)
+length(sites.2014)
+length(sites.2015)
+length(sites.2016)
+
+# write.table(simpleRIBS, file="simpleRIBS_yr.csv",sep=",", row.names = FALSE)
+
+
+```
+
+Analyzing parameter and fraction issues
+```{r}
+# List unique parameters
+paramlist <- sort(unique(simpleRIBS$Parameter))
+
+# List unique parameters that have an "NA" fraction in their parameter names
+NAfractions <- simpleRIBS %>% 
+  filter(str_detect(Parameter, "NA")) %>% 
+paramlist.NAfractions <- data.frame(unique(NAfractions$Parameter))
+```
+
+
+Remove unwanted parameters from table
+```{r}
+# Andreas says to remove p-Bromoflourobenzene 1,2, dichlororethane D4, and Toluene D-8 (total %)- these are internal standards not an environmental measurement. 
+# Remove lab-measured DO, pH, and temperature from final table posted to data portal!
+
+simpleRIBS.RMparams <- filter(simpleRIBS, 
+ !Parameter %in% 
+   c("p-Bromofluorobenzene (total,%)", "1,2-Dichloroethane-D4 (total,%)", "Toluene-D8 (total,%)"))
+
+```
+
+Use casewhen to normalize parameter naming conventions
+```{r}
+# Also fix T,D issues here once solved
+
+```
+
+Separate param field into param, fraction, and unit
+# No need to do this. These are separate in RIBS.csv. But maybe keep these combined for data portal table.
+```{r}
+# Look for last open parenthese? Some contain two sets.
+# Then separate by comma
+
+```
+
+Convert params with multiple units to single, based on what ALS reports now.
+```{r}
+
+```
+
+Import 2016 Mohawk data 
+```{r}
+# Do this in a separate Rmd. Need to rectify station IDs and parameters...
+# Create a master table for this data with all old and new fields.
+```
+
+Merge new and existing SiteIDs
+```{r}
+# First double check work and notes form working with Di and Brian.
+# Need to add "new" (80) sites to sites table.
+# Replace site names with ones from master sites table?
+# Remove lat/long fields from table, or replace with that from sites table
+
+```
+
+Add additional fields to prep for new data input
+```{r}
+# Add flag field (and historic data flag), other fields to be populated for new data.
+
+```
+

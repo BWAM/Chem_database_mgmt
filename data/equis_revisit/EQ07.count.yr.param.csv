@@ -1,0 +1,53 @@
+"param_frac","n"
+"Alkalinity, Total (As CaCO3)_T",328
+"Aluminum_D",330
+"Aluminum_T",335
+"Bromodichloromethane_T",84
+"Cadmium_D",330
+"Cadmium_T",335
+"Calcium_T",335
+"Chloride (As Cl)_T",328
+"Chlorodibromomethane_T",82
+"Chloroform_T",84
+"Chloromethane_T",84
+"Coliform_T",253
+"Copper_D",330
+"Copper_T",335
+"Dissolved Oxygen_T",325
+"Fecal Coliform_T",254
+"Fluoride_T",328
+"Hardness (As CaCO3)_T",328
+"Iron_T",335
+"Lead_D",330
+"Lead_T",335
+"Magnesium_T",335
+"Manganese_T",335
+"Mercury_T",339
+"Methylene Chloride_T",84
+"Nickel_D",330
+"Nickel_T",335
+"Nitrogen, Ammonia (As N)_T",328
+"Nitrogen, Kjeldahl, Total_T",328
+"Nitrogen, Nitrate-Nitrite_T",328
+"Nitrogen, Nitrate (As N)_T",328
+"Nitrogen, Nitrite_T",328
+"pH (Water)_T",658
+"Phenolics, Total Recoverable_T",104
+"Phosphate Ion_T",328
+"Phosphorus_T",328
+"Potassium_T",335
+"Sodium_T",335
+"Specific Conductance_T",657
+"Sulfate (As SO4)_T",328
+"Temperature for sample or purge water_T",332
+"Tetrachloroethylene (PCE)_T",84
+"Total Dissolved Solids (Residue, Filterable)_T",328
+"Total Organic Carbon_D",325
+"Total Organic Carbon_T",328
+"Total Solids_T",328
+"Total Suspended Solids_T",328
+"Total Volatile Solids_T",328
+"Trichloroethylene (TCE)_T",84
+"Turbidity_T",328
+"Vinyl Chloride_T",84
+"Zinc_T",335

@@ -1,0 +1,132 @@
+---
+title: "equis_revisit_apr2019"
+author: "Gavin Lemley"
+date: "April 18, 2019"
+output: ''
+---
+
+Comparing equis and simpleRIBS 2007 & 2008. Load equis and simpleRIBS data, format, and subset. 
+```{r setup, include=FALSE}
+library(tidyverse)
+
+# Load EQuiS data
+equis.locations <- readxl::read_excel("data/equis_revisit/from_dan_eaton_04-15-19/2019-04-12.Location_v4.xlsx")
+equis.2007.sample <- readxl::read_excel("data/equis_revisit/from_dan_eaton_04-15-19/2019-04-15.Jan 2007 thru Dec 2007 Sample_v4.xlsx")
+equis.2007.result <- readxl::read_excel("data/equis_revisit/from_dan_eaton_04-15-19/2019-04-15.Jan 2007 thru Dec 2007 TestResultQC_v4.xlsx")
+equis.2008.sample <- readxl::read_excel("data/equis_revisit/from_dan_eaton_04-15-19/2019-04-15.Jan 2008 thru Dec 2008 Sample_v4.xlsx")
+equis.2008.result <- readxl::read_excel("data/equis_revisit/from_dan_eaton_04-15-19/2019-04-15.Jan 2008 thru Dec 2008 TestResultQC_v4.xlsx")
+
+# Check for duplicate sys_sample_codes in sample files. Returns TRUE if no duplcates. If duplicates present, can't properly merge sample and result files.
+length(unique(equis.2007.sample$sys_sample_code)) == nrow(equis.2007.sample)
+length(unique(equis.2008.sample$sys_sample_code)) == nrow(equis.2008.sample)
+
+
+# Merge sample and result files to get sys_loc_codes (stations)
+equis.2007.merge <- merge(equis.2007.result,equis.2007.sample,by="sys_sample_code", all=TRUE)
+equis.2008.merge <- merge(equis.2008.result,equis.2008.sample,by="sys_sample_code", all=TRUE)
+
+# # Create event IDs using date and station to have a sample ID to match 
+# equis.2007.merge$SAMPLE_DATETIME <- lubridate::mdy_hm(equis.2007.merge$sample_date)
+# equis.2007.merge$SAMPLE_DATEONLY <- as.Date(equis.2007.merge$SAMPLE_DATETIME)
+# equis.2008.merge$SAMPLE_DATETIME <- lubridate::mdy_hm(equis.2008.merge$sample_date)
+# equis.2008.merge$SAMPLE_DATEONLY <- as.Date(equis.2008.merge$SAMPLE_DATETIME)
+# 
+# # Use to compare datasets to see if dates missing for certain stations...?
+# equis.2007.merge$eventID <- paste0(equis.2007.merge$sys_loc_code,"_",equis.2007.merge$SAMPLE_DATEONLY)
+# equis.2008.merge$eventID <- paste0(equis.2008.merge$sys_loc_code,"_",equis.2008.merge$SAMPLE_DATEONLY)
+
+# Create param-fraction field to compare with simpleRIBS
+equis.2007.merge$param_frac <- paste0(equis.2007.merge$chemical_name,"_",equis.2007.merge$fraction)
+equis.2008.merge$param_frac <- paste0(equis.2008.merge$chemical_name,"_",equis.2008.merge$fraction)
+
+# Import simpleRIBS and format date and subset
+simpleRIBS <- read.csv(file.path("data/source/simpleRIBS.csv"), stringsAsFactors = FALSE)
+simpleRIBS$SAMPLE_DATE <- as.Date(simpleRIBS$SAMPLE_DATE, "%Y-%m-%d")
+simpleRIBS$year <- lubridate::year(simpleRIBS$SAMPLE_DATE)
+
+simpleRIBS.2007 <- simpleRIBS %>% 
+  filter(year == 2007)
+simpleRIBS.2008 <- simpleRIBS %>% 
+  filter(year == 2008)
+
+# Import full RIBS.csv for analysis and add year column
+historicRIBS <- read.csv("C:/Data/RIBS/From_L_drive/RIBS.csv", stringsAsFactors = FALSE)
+historicRIBS$year <- lubridate::year(historicRIBS$SAMPLE_DATE)
+
+```
+
+Count data present in each dataset
+```{r}
+# Count unqiue sites present 
+simpleRIBS.loc.unique <- length(unique(simpleRIBS$Station))
+equis.loccode.unique <- length(unique(equis.locations$sys_loc_code))
+equis.locname.unique <- length(unique(equis.locations$loc_name))
+equis.locations$latlong <- paste0(equis.locations$latitude, "_", equis.locations$longitude)
+equis.xy.unique <- length(unique(equis.locations$latlong))
+
+
+equis.2007.sites <- length(unique(equis.2007.merge$sys_loc_code))
+equis.2008.sites <- length(unique(equis.2008.merge$sys_loc_code))
+simpleRIBS.2007.sites <- length(unique(simpleRIBS.2007$Station))
+simpleRIBS.2008.sites <- length(unique(simpleRIBS.2008$Station))
+
+# Count results by year for simpleRIBS
+SR.count.yr <- simpleRIBS %>%
+        group_by(year) %>%
+        tally()
+
+# Count results per parameter for 2007 and 2008 in equis and simpleRIBS
+SR07.count.yr.param <- simpleRIBS.2007 %>%
+  group_by(year, Parameter) %>%
+  tally()
+SR08.count.yr.param <- simpleRIBS.2008 %>%
+  group_by(year, Parameter) %>%
+  tally()
+
+EQ07.count.yr.param <- equis.2007.merge %>%
+        group_by(param_frac) %>%
+        tally()
+EQ08.count.yr.param <- equis.2008.merge %>%
+        group_by(param_frac) %>%
+        tally()
+
+# List unique params
+equis.2007.params <- sort(unique(equis.2007.merge$param_frac))
+equis.2008.params <- sort(unique(equis.2008.merge$param_frac))
+simpleRIBS.2007.params <- sort(unique(simpleRIBS.2007$Parameter))
+simpleRIBS.2008.params <- sort(unique(simpleRIBS.2008$Parameter))
+
+#Export tables for visual analysis in excel.
+# write.csv(EQ07.count.yr.param, "data/equis_revisit/EQ07.count.yr.param.csv", row.names = FALSE)
+# write.csv(EQ08.count.yr.param, "data/equis_revisit/EQ08.count.yr.param.csv", row.names = FALSE)
+# write.csv(SR07.count.yr.param, "data/equis_revisit/SR07.count.yr.param.csv", row.names = FALSE)
+# write.csv(SR08.count.yr.param, "data/equis_revisit/SR08.count.yr.param.csv", row.names = FALSE)
+
+
+```
+
+Looking for undetects
+```{r}
+
+# Filter undetects in simpleRIBS
+simpleRIBS.undetects <- simpleRIBS %>%
+  filter(Error_Flag %in% "U")
+  # filter(grepl("*U", Error_Flag))   # 3 records from 2015 have "UN" flag, which don't look like undetects.
+
+# Filter NA result values in simpleRIBS
+simpleRIBS.NA <- simpleRIBS %>%
+  filter(is.na(Result.Value))
+
+# Filter undetects in RIBS.csv
+histRIBS.undetects <- historicRIBS %>%
+  filter(EQUIS_IFLAG %in% "U")
+  # filter(grepl("*U", Error_Flag))   # 3 records from 2015 have "UN" flag, which don't look like undetects.
+  ##### ONLY present in 2011 and 2015 #####
+
+# Filter NA result values in RIBS.csv
+histRIBS.NA <- historicRIBS %>%
+  filter(is.na(Result.Value))
+  #### NONE PRESENT #####
+
+```
+
